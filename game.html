@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>بازی سیف کوین</title>
+<title>بازی سیف کوین پیشرفته</title>
 <style>
   body {
     margin: 0; background: #222; overflow: hidden; font-family: Tahoma, sans-serif;
     color: #fff; text-align: center;
+    user-select: none;
   }
   canvas {
     background: linear-gradient(to top, #4a3c00 0%, #ffd700 100%);
@@ -15,127 +16,36 @@
   }
   #score {
     font-size: 24px; margin-top: 10px;
+    height: 30px;
+  }
+  #message {
+    font-size: 20px; color: #ffec99; height: 30px; margin-top: 5px;
+    min-height: 30px;
+  }
+  #restartBtn {
+    display: none;
+    margin-top: 20px;
+    background: #b8860b;
+    border: none;
+    color: #fff;
+    padding: 10px 25px;
+    font-size: 18px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #restartBtn:hover {
+    background: #ffd700;
+    color: #4a3c00;
   }
 </style>
 </head>
 <body>
 
-<h1>بازی سیف کوین</h1>
+<h1>بازی سیف کوین پیشرفته</h1>
 <canvas id="gameCanvas" width="400" height="600"></canvas>
 <div id="score">امتیاز: 0</div>
+<div id="message"></div>
+<button id="restartBtn" onclick="restartGame()">شروع دوباره</button>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-const basket = {
-  x: canvas.width / 2 - 50,
-  y: canvas.height - 60,
-  width: 100,
-  height: 40,
-  color: '#b8860b',
-  moveX: 0,
-};
-
-const coin = {
-  x: Math.random() * (canvas.width - 60) + 30,
-  y: -60,
-  radius: 30,
-  speed: 3,
-};
-
-let score = 0;
-
-function drawBasket() {
-  ctx.fillStyle = basket.color;
-  ctx.beginPath();
-  ctx.moveTo(basket.x, basket.y + basket.height);
-  ctx.lineTo(basket.x + basket.width, basket.y + basket.height);
-  ctx.lineTo(basket.x + basket.width - 15, basket.y);
-  ctx.lineTo(basket.x + 15, basket.y);
-  ctx.closePath();
-  ctx.fill();
-}
-
-function drawCoin() {
-  // دایره طلایی
-  const grad = ctx.createRadialGradient(coin.x, coin.y, coin.radius * 0.2, coin.x, coin.y, coin.radius);
-  grad.addColorStop(0, '#fff769');
-  grad.addColorStop(1, '#b8860b');
-
-  ctx.fillStyle = grad;
-  ctx.beginPath();
-  ctx.arc(coin.x, coin.y, coin.radius, 0, Math.PI * 2);
-  ctx.fill();
-
-  // نوشته $FC وسط سکه
-  ctx.font = 'bold 24px Tahoma';
-  ctx.fillStyle = '#7a5c00';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('$FC', coin.x, coin.y);
-}
-
-function update() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // حرکت کوین
-  coin.y += coin.speed;
-
-  // کشف برخورد با سبد
-  if (
-    coin.y + coin.radius >= basket.y &&
-    coin.x >= basket.x &&
-    coin.x <= basket.x + basket.width
-  ) {
-    score++;
-    document.getElementById('score').textContent = 'امتیاز: ' + score;
-    resetCoin();
-  }
-
-  // اگر کوین افتاد پایین صفحه
-  if (coin.y - coin.radius > canvas.height) {
-    resetCoin();
-  }
-
-  drawBasket();
-  drawCoin();
-
-  requestAnimationFrame(update);
-}
-
-function resetCoin() {
-  coin.x = Math.random() * (canvas.width - 60) + 30;
-  coin.y = -60;
-  // میتونی سرعت رو هم افزایش بدی با گذشت زمان
-  coin.speed += 0.1;
-}
-
-function onMouseMove(e) {
-  let rect = canvas.getBoundingClientRect();
-  let mouseX = e.clientX - rect.left;
-  basket.x = mouseX - basket.width / 2;
-
-  // محدود کردن حرکت سبد به داخل کانوَس
-  if (basket.x < 0) basket.x = 0;
-  if (basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
-}
-
-function onTouchMove(e) {
-  e.preventDefault();
-  let rect = canvas.getBoundingClientRect();
-  let touchX = e.touches[0].clientX - rect.left;
-  basket.x = touchX - basket.width / 2;
-
-  if (basket.x < 0) basket.x = 0;
-  if (basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
-}
-
-canvas.addEventListener('mousemove', onMouseMove);
-canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-
-update();
-</script>
-
-</body>
-</html>
