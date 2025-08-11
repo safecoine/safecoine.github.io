@@ -1,247 +1,34 @@
-<!DOCTYPE html>
-<html lang="fa">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>بازی سیف کوین پیشرفته</title>
-<style>
-  body {
-    margin: 0; background: #222; overflow: hidden; font-family: Tahoma, sans-serif;
-    color: #fff; text-align: center;
-    user-select: none;
-  }
-  canvas {
-    background: linear-gradient(to top, #4a3c00 0%, #ffd700 100%);
-    display: block; margin: 0 auto; border-radius: 10px;
-  }
-  #score {
-    font-size: 24px; margin-top: 10px;
-    height: 30px;
-  }
-  #message {
-    font-size: 20px; color: #ffec99; height: 30px; margin-top: 5px;
-    min-height: 30px;
-  }
-  #restartBtn {
-    display: none;
-    margin-top: 20px;
-    background: #b8860b;
-    border: none;
-    color: #fff;
-    padding: 10px 25px;
-    font-size: 18px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  #restartBtn:hover {
-    background: #ffd700;
-    color: #4a3c00;
-  }
-</style>
-</head>
-<body>
+for(let i=0; i<coins.length; i++) {
+  let c = coins[i];
+  c.y += c.speed;
 
-<h1>بازی سیف کوین پیشرفته</h1>
-<canvas id="gameCanvas" width="400" height="600"></canvas>
-<div id="score">امتیاز: 0</div>
-<div id="message"></div>
-<button id="restartBtn" onclick="restartGame()">شروع دوباره</button>
-
-<script>
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-const basket = {
-  x: canvas.width / 2 - 50,
-  y: canvas.height - 60,
-  width: 100,
-  height: 40,
-  color: '#b8860b',
-};
-
-const coinRadius = 25;
-const coinColors = {
-  normal: ['#fff769', '#b8860b'], // gradient colors
-  trap: ['#ff4d4d', '#990000'] // قرمز برای تله
-};
-
-let score = 0;
-let coins = [];
-let maxCoins = 3;
-let gameOver = false;
-let messageTimeout;
-
-const messages = {
-  cheer: [
-    "آفرین! داری عالی پیش میری!",
-    "تو سلطان سیف کوینی!",
-    "ادامه بده، رکورد نزدیکه!",
-    "با قدرت ادامه بده!"
-  ],
-  lose: [
-    "هه! باختی ولی دوباره تلاش کن!",
-    "اوپس! این تله‌اش بد بود!",
-    "اینا همش بخشی از بازیه!",
-    "دوباره شروع کن، موفق میشی!"
-  ]
-};
-
-function randomBetween(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-function createCoin() {
-  return {
-    x: randomBetween(coinRadius, canvas.width - coinRadius),
-    y: randomBetween(-600, -coinRadius),
-    speed: randomBetween(2, 4) + score * 0.05,
-    type: Math.random() < 0.2 ? 'trap' : 'normal'
-  };
-}
-
-// ایجاد کوین‌ها در ابتدا
-function initCoins() {
-  coins = [];
-  for(let i=0; i<maxCoins; i++){
-    coins.push(createCoin());
-  }
-}
-
-function drawBasket() {
-  ctx.fillStyle = basket.color;
-  ctx.beginPath();
-  ctx.moveTo(basket.x, basket.y + basket.height);
-  ctx.lineTo(basket.x + basket.width, basket.y + basket.height);
-  ctx.lineTo(basket.x + basket.width - 15, basket.y);
-  ctx.lineTo(basket.x + 15, basket.y);
-  ctx.closePath();
-  ctx.fill();
-}
-
-function drawCoin(c) {
-  const grad = ctx.createRadialGradient(c.x, c.y, coinRadius * 0.2, c.x, c.y, coinRadius);
-  const colors = c.type === 'trap' ? coinColors.trap : coinColors.normal;
-  grad.addColorStop(0, colors[0]);
-  grad.addColorStop(1, colors[1]);
-
-  ctx.fillStyle = grad;
-  ctx.beginPath();
-  ctx.arc(c.x, c.y, coinRadius, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.font = 'bold 22px Tahoma';
-  ctx.fillStyle = c.type === 'trap' ? '#660000' : '#7a5c00';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('$FC', c.x, c.y);
-}
-
-function update() {
-  if(gameOver) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  for(let i=0; i<coins.length; i++) {
-    let c = coins[i];
-    c.y += c.speed;
-
-    // برخورد با سبد
-    if(
-      c.y + coinRadius >= basket.y &&
-      c.x >= basket.x &&
-      c.x <= basket.x + basket.width
-    ){
-      if(c.type === 'trap') {
-        gameOver = true;
-        showMessage(randomLoseMessage());
-        showRestartButton();
-      } else {
-        score++;
-        document.getElementById('score').textContent = 'امتیاز: ' + score;
-        showCheerMessage();
-
-        // افزایش سختی بازی
-        if(score % 5 === 0 && maxCoins < 10) {
-          maxCoins++;
-          coins.push(createCoin());
-        }
+  if(
+    c.y + coinRadius >= basket.y &&
+    c.x >= basket.x &&
+    c.x <= basket.x + basket.width
+  ){
+    if(c.type === 'trap') {
+      gameOver = true;
+      showMessage(randomLoseMessage());
+      showRestartButton();
+    } else {
+      score++;
+      document.getElementById('score').textContent = 'امتیاز: ' + score;
+      showCheerMessage();
+      if(score % 5 === 0 && maxCoins < 10) {
+        maxCoins++;
+        coins.push(createCoin());
       }
-      coins[i] = createCoin();
     }
-
-    if(c.y - coinRadius > canvas.height){
-      coins[i] = createCoin();
-    }
-
-    drawCoin(c);
+    coins[i] = createCoin();
   }
 
-  drawBasket();
-
-  requestAnimationFrame(update);
-}
-
-function showMessage(text){
-  clearTimeout(messageTimeout);
-  const msg = document.getElementById('message');
-  msg.textContent = text;
-  messageTimeout = setTimeout(() => {
-    msg.textContent = '';
-  }, 4000);
-}
-
-function randomLoseMessage(){
-  return messages.lose[Math.floor(Math.random()*messages.lose.length)];
-}
-
-function showCheerMessage(){
-  if(score > 0 && score % 3 === 0){
-    const msg = messages.cheer[Math.floor(Math.random()*messages.cheer.length)];
-    showMessage(msg);
+  if(c.y - coinRadius > canvas.height && c.type === 'normal') {
+    // کوین رد شده بدون اینکه گرفته بشه: بازی باخته
+    gameOver = true;
+    showMessage(`کوین رد شد، باختی! امتیاز نهایی: ${score}`);
+    showRestartButton();
   }
+
+  drawCoin(c);
 }
-
-function showRestartButton(){
-  document.getElementById('restartBtn').style.display = 'inline-block';
-}
-
-function restartGame(){
-  score = 0;
-  maxCoins = 3;
-  gameOver = false;
-  document.getElementById('score').textContent = 'امتیاز: 0';
-  document.getElementById('message').textContent = '';
-  document.getElementById('restartBtn').style.display = 'none';
-  initCoins();
-  update();
-}
-
-function onMouseMove(e) {
-  let rect = canvas.getBoundingClientRect();
-  let mouseX = e.clientX - rect.left;
-  basket.x = mouseX - basket.width / 2;
-
-  if(basket.x < 0) basket.x = 0;
-  if(basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
-}
-
-function onTouchMove(e) {
-  e.preventDefault();
-  let rect = canvas.getBoundingClientRect();
-  let touchX = e.touches[0].clientX - rect.left;
-  basket.x = touchX - basket.width / 2;
-
-  if(basket.x < 0) basket.x = 0;
-  if(basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
-}
-
-canvas.addEventListener('mousemove', onMouseMove);
-canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-
-// شروع بازی
-initCoins();
-update();
-</script>
-
-</body>
-</html>
