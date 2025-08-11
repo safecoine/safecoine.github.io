@@ -3,55 +3,190 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SafeCoin Catcher - حرفه‌ای</title>
+<title>بازی مبارزه ساده</title>
 <style>
-  * {
-    margin: 0; padding: 0; box-sizing: border-box;
+  body {
+    font-family: Vazir, sans-serif;
+    background: linear-gradient(135deg, #f8f9fa, #d1d8e0);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
   }
-  body, html {
-    height: 100%; background: linear-gradient(135deg, #f9d423, #ff4e50);
-    font-family: 'Vazir', sans-serif; overflow: hidden; user-select: none;
+  h1 {
+    margin-bottom: 20px;
+    color: #222;
   }
-  #game {
-    position: relative;
-    width: 100vw; height: 100vh;
+  .players {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 600px;
+  }
+  .player {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px #aaa4;
+    padding: 20px;
+    width: 250px;
+    text-align: center;
+  }
+  .player h2 {
+    margin-bottom: 15px;
+    color: #333;
+  }
+  .health-bar {
+    background: #ddd;
+    border-radius: 15px;
     overflow: hidden;
-    touch-action: none;
-    background: linear-gradient(to bottom, #ffef8e 0%, #eab308 100%);
+    height: 25px;
+    margin-bottom: 15px;
   }
-  #scoreBoard, #highScore {
-    position: absolute; top: 15px; color: #fff;
-    text-shadow: 0 0 6px #0006;
-    font-weight: bold; z-index: 20;
-    user-select: none;
-  }
-  #scoreBoard {
-    left: 15px;
-    font-size: 22px;
-  }
-  #highScore {
-    right: 15px;
-    font-size: 18px;
-    font-weight: 600;
+  .health-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #ff3b3b, #d62828);
+    width: 100%;
+    transition: width 0.3s ease;
   }
   #message {
-    position: absolute;
-    top: 40vh;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 30px;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 15px #000a;
-    z-index: 30;
-    user-select: none;
-    display: none;
+    font-size: 24px;
+    font-weight: 700;
+    color: #005f73;
+    margin-bottom: 20px;
+    min-height: 30px;
+    min-width: 300px;
     text-align: center;
-    max-width: 90vw;
-    padding: 10px 20px;
-    border-radius: 20px;
-    background: rgba(0,0,0,0.5);
   }
-  #restartBtn {
-    position: absolute;
-    top
+  button {
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #0a9396;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  button:disabled {
+    background: #94a1b2;
+    cursor: not-allowed;
+  }
+  button:hover:not(:disabled) {
+    background: #005f73;
+  }
+</style>
+</head>
+<body>
+
+<h1>بازی مبارزه ساده</h1>
+
+<div class="players">
+  <div class="player" id="player">
+    <h2>بازیکن تو</h2>
+    <div class="health-bar"><div class="health-bar-inner" id="playerHealth"></div></div>
+    <div id="playerHPText">100 / 100</div>
+  </div>
+  <div class="player" id="computer">
+    <h2>کامپیوتر</h2>
+    <div class="health-bar"><div class="health-bar-inner" id="computerHealth"></div></div>
+    <div id="computerHPText">100 / 100</div>
+  </div>
+</div>
+
+<div id="message"></div>
+
+<button id="attackBtn">حمله کن</button>
+<button id="restartBtn" style="display:none;">بازی دوباره</button>
+
+<script>
+  const playerMaxHP = 100;
+  const computerMaxHP = 100;
+  let playerHP = playerMaxHP;
+  let computerHP = computerMaxHP;
+  const damage = 10;
+
+  const playerHealthBar = document.getElementById('playerHealth');
+  const computerHealthBar = document.getElementById('computerHealth');
+  const playerHPText = document.getElementById('playerHPText');
+  const computerHPText = document.getElementById('computerHPText');
+  const message = document.getElementById('message');
+  const attackBtn = document.getElementById('attackBtn');
+  const restartBtn = document.getElementById('restartBtn');
+
+  function updateHealth() {
+    playerHealthBar.style.width = (playerHP / playerMaxHP * 100) + '%';
+    playerHPText.textContent = `${playerHP} / ${playerMaxHP}`;
+
+    computerHealthBar.style.width = (computerHP / computerMaxHP * 100) + '%';
+    computerHPText.textContent = `${computerHP} / ${computerMaxHP}`;
+  }
+
+  function checkGameOver() {
+    if (playerHP <= 0) {
+      playerHP = 0;
+      message.textContent = "شکست خوردی! بازی تموم شد.";
+      attackBtn.disabled = true;
+      restartBtn.style.display = 'inline-block';
+      return true;
+    } 
+    if (computerHP <= 0) {
+      computerHP = 0;
+      message.textContent = "تبریک! تو برنده شدی 🎉";
+      attackBtn.disabled = true;
+      restartBtn.style.display = 'inline-block';
+      return true;
+    }
+    return false;
+  }
+
+  function computerTurn() {
+    setTimeout(() => {
+      if (Math.random() > 0.3) {
+        playerHP -= damage;
+        if(playerHP < 0) playerHP = 0;
+        message.textContent = "کامپیوتر حمله کرد!";
+        updateHealth();
+        if(!checkGameOver()) {
+          attackBtn.disabled = false;
+          message.textContent = "نوبت توست. حمله کن!";
+        }
+      } else {
+        message.textContent = "کامپیوتر این بار حمله نکرد.";
+        attackBtn.disabled = false;
+      }
+    }, 1000);
+  }
+
+  attackBtn.addEventListener('click', () => {
+    attackBtn.disabled = true;
+    computerHP -= damage;
+    if(computerHP < 0) computerHP = 0;
+    message.textContent = "تو حمله کردی!";
+    updateHealth();
+
+    if(!checkGameOver()) {
+      computerTurn();
+    }
+  });
+
+  restartBtn.addEventListener('click', () => {
+    playerHP = playerMaxHP;
+    computerHP = computerMaxHP;
+    updateHealth();
+    message.textContent = "بازی دوباره شروع شد. حمله کن!";
+    attackBtn.disabled = false;
+    restartBtn.style.display = 'none';
+  });
+
+  // شروع بازی
+  updateHealth();
+  message.textContent = "شروع بازی! حمله کن!";
+</script>
+
+</body>
+</html>
