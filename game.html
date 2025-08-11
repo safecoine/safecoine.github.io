@@ -1,85 +1,105 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>بازی سیف کوین</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; overflow: hidden; background: #f0f0f0;
+    touch-action: none;
+    font-family: Tahoma, sans-serif;
+    direction: rtl;
+  }
+  #gameCanvas {
+    display: block;
+    background: #fff;
+  }
+  #restartBtn {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 12px 24px;
+    font-size: 20px;
+    display: none;
+    cursor: pointer;
+  }
+  #gameOverMsg {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 26px;
+    color: red;
+    display: none;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
 <canvas id="gameCanvas"></canvas>
-<button id="restartBtn" style="display:none;">دوباره بازی کن</button>
+<div id="gameOverMsg">باختی! :(</div>
+<button id="restartBtn">دوباره بازی کن</button>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
 
 let score = 0;
 let isGameOver = false;
-let basket = { x: canvas.width / 2 - 50, y: canvas.height - 100, width: 100, height: 30 };
+let basket = { 
+  width: 120, 
+  height: 30, 
+  x: window.innerWidth / 2 - 60, 
+  y: window.innerHeight - 140
+};
 let coins = [];
-
-function startGame() {
-    score = 0;
-    isGameOver = false;
-    coins = [];
-    document.getElementById("restartBtn").style.display = "none";
-    spawnCoin();
-    gameLoop();
-}
+let spawnInterval;
 
 function spawnCoin() {
-    coins.push({ x: Math.random() * (canvas.width - 30), y: 0, size: 30, speed: 3 });
+  coins.push({ 
+    x: Math.random() * (canvas.width - 30) + 15, 
+    y: -30, 
+    size: 30, 
+    speed: 3 + Math.random() * 2 
+  });
+}
+
+function startGame() {
+  score = 0;
+  isGameOver = false;
+  coins = [];
+  basket.x = window.innerWidth / 2 - basket.width / 2;
+  document.getElementById("restartBtn").style.display = "none";
+  document.getElementById("gameOverMsg").style.display = "none";
+
+  if (spawnInterval) clearInterval(spawnInterval);
+  spawnCoin();
+  spawnInterval = setInterval(spawnCoin, 1000);
+
+  requestAnimationFrame(gameLoop);
 }
 
 function gameLoop() {
-    if (isGameOver) return;
+  if (isGameOver) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // سبد
-    ctx.fillStyle = "brown";
-    ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+  // رسم سبد
+  ctx.fillStyle = "brown";
+  ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
 
-    // کوین‌ها
-    ctx.fillStyle = "gold";
-    for (let coin of coins) {
-        ctx.beginPath();
-        ctx.arc(coin.x, coin.y, coin.size / 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        coin.y += coin.speed;
-
-        // گرفتن کوین
-        if (
-            coin.y + coin.size / 2 >= basket.y &&
-            coin.x >= basket.x &&
-            coin.x <= basket.x + basket.width
-        ) {
-            score++;
-            coin.y = -100;
-            coin.x = Math.random() * (canvas.width - 30);
-        }
-
-        // رد شدن کوین
-        if (coin.y > canvas.height) {
-            gameOver();
-        }
-    }
-
-    // امتیاز
-    ctx.fillStyle = "black";
-    ctx.font = "24px Arial";
-    ctx.fillText("امتیاز: " + score, 20, 30);
-
-    requestAnimationFrame(gameLoop);
-}
-
-function gameOver() {
-    isGameOver = true;
-    document.getElementById("restartBtn").style.display = "block";
-}
-
-document.addEventListener("touchmove", (e) => {
-    let touchX = e.touches[0].clientX;
-    basket.x = touchX - basket.width / 2;
-});
-
-document.getElementById("restartBtn").addEventListener("click", startGame);
-
-startGame();
-</script>
+  // رسم کوین‌ها
+  ctx.fillStyle = "gold";
+  for (let i = 0; i < coins.length; i++) {
+    let coin = coins[i];
+    ctx.beginPath();
+    ctx.arc(coin.x, coin.y, coin.size / 2, 0, Math.PI * 2);
