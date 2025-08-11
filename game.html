@@ -1,34 +1,196 @@
-for(let i=0; i<coins.length; i++) {
-  let c = coins[i];
-  c.y += c.speed;
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<title>SafeCoin Game</title>
+<style>
+  body { text-align: center; font-family: Arial, sans-serif; background: #222; color: #fff; }
+  #gameCanvas { background: #444; display: block; margin: 0 auto; }
+  #score { font-size: 24px; margin: 10px; }
+  #message { font-size: 20px; margin: 10px; min-height: 30px; }
+  #restartBtn { padding: 10px 20px; font-size: 18px; display: none; cursor: pointer; }
+</style>
+</head>
+<body>
 
-  if(
-    c.y + coinRadius >= basket.y &&
-    c.x >= basket.x &&
-    c.x <= basket.x + basket.width
-  ){
-    if(c.type === 'trap') {
-      gameOver = true;
-      showMessage(randomLoseMessage());
-      showRestartButton();
-    } else {
-      score++;
-      document.getElementById('score').textContent = 'امتیاز: ' + score;
-      showCheerMessage();
-      if(score % 5 === 0 && maxCoins < 10) {
-        maxCoins++;
-        coins.push(createCoin());
-      }
-    }
-    coins[i] = createCoin();
-  }
+<h1>بازی SafeCoin</h1>
+<div id="score">امتیاز: 0</div>
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+<div id="message"></div>
+<button id="restartBtn">شروع دوباره</button>
 
-  if(c.y - coinRadius > canvas.height && c.type === 'normal') {
-    // کوین رد شده بدون اینکه گرفته بشه: بازی باخته
-    gameOver = true;
-    showMessage(`کوین رد شد، باختی! امتیاز نهایی: ${score}`);
-    showRestartButton();
-  }
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-  drawCoin(c);
+const basket = {
+  x: canvas.width / 2 - 50,
+  y: canvas.height - 50,
+  width: 100,
+  height: 30,
+  speed: 7
+};
+
+const coinRadius = 20;
+let score = 0;
+let gameOver = false;
+let maxCoins = 3;
+let coins = [];
+let messages = [
+  "آفرین! ادامه بده!",
+  "تو بهترینی!",
+  "دوباره تلاش کن، بهتر میشی!",
+  "تو می‌تونی!",
+  "حواست باشه، کوین‌ها زیاد شدن!"
+];
+let loseMessages = [
+  "آخ... کوین رد شد!",
+  "بدشانسی!",
+  "یک بار دیگه شانس رو امتحان کن!",
+  "بازی تموم شد، ولی دوباره شروع کن!"
+];
+
+function createCoin() {
+  return {
+    x: Math.random() * (canvas.width - 2 * coinRadius) + coinRadius,
+    y: -coinRadius,
+    speed: 2 + Math.random() * 2,
+    type: Math.random() < 0.2 ? 'trap' : 'normal'  // ۲۰٪ تله
+  };
 }
+
+function drawBasket() {
+  ctx.fillStyle = '#555';
+  ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+  ctx.strokeStyle = '#ddd';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(basket.x, basket.y, basket.width, basket.height);
+}
+
+function drawCoin(c) {
+  if (c.type === 'trap') {
+    ctx.fillStyle = 'red';
+  } else {
+    // سکه طلایی با متن $FC
+    let gradient = ctx.createRadialGradient(c.x, c.y, 10, c.x, c.y, 20);
+    gradient.addColorStop(0, '#fff769');
+    gradient.addColorStop(1, '#b8860b');
+    ctx.fillStyle = gradient;
+  }
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, coinRadius, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = '#7a5c00';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  if (c.type !== 'trap') {
+    ctx.fillStyle = '#7a5c00';
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('$FC', c.x, c.y);
+  }
+}
+
+function showMessage(text) {
+  document.getElementById('message').textContent = text;
+}
+
+function showCheerMessage() {
+  const msg = messages[Math.floor(Math.random() * messages.length)];
+  showMessage(msg);
+}
+
+function showLoseMessage() {
+  const msg = loseMessages[Math.floor(Math.random() * loseMessages.length)];
+  showMessage(msg);
+}
+
+function showRestartButton() {
+  document.getElementById('restartBtn').style.display = 'inline-block';
+}
+
+function hideRestartButton() {
+  document.getElementById('restartBtn').style.display = 'none';
+}
+
+function resetGame() {
+  score = 0;
+  gameOver = false;
+  maxCoins = 3;
+  coins = [];
+  for(let i=0; i<maxCoins; i++) {
+    coins.push(createCoin());
+  }
+  document.getElementById('score').textContent = 'امتیاز: ' + score;
+  showMessage('');
+  hideRestartButton();
+}
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  resetGame();
+  requestAnimationFrame(gameLoop);
+});
+
+document.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  basket.x = e.clientX - rect.left - basket.width / 2;
+  if(basket.x < 0) basket.x = 0;
+  if(basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
+});
+
+function gameLoop() {
+  if(gameOver) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBasket();
+
+  for(let i=0; i<coins.length; i++) {
+    let c = coins[i];
+    c.y += c.speed;
+
+    // برخورد با سبد
+    if(
+      c.y + coinRadius >= basket.y &&
+      c.x >= basket.x &&
+      c.x <= basket.x + basket.width
+    ) {
+      if(c.type === 'trap') {
+        gameOver = true;
+        showLoseMessage();
+        showRestartButton();
+      } else {
+        score++;
+        document.getElementById('score').textContent = 'امتیاز: ' + score;
+        showCheerMessage();
+
+        // هر ۵ امتیاز افزایش تعداد کوین‌ها
+        if(score % 5 === 0 && maxCoins < 10) {
+          maxCoins++;
+          coins.push(createCoin());
+        }
+      }
+      coins[i] = createCoin();
+    }
+
+    // رد شدن کوین معمولی بدون گرفتن = باخت
+    if(c.y - coinRadius > canvas.height && c.type === 'normal') {
+      gameOver = true;
+      showMessage(`کوین رد شد، باختی! امتیاز نهایی: ${score}`);
+      showRestartButton();
+    }
+
+    drawCoin(c);
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+// شروع بازی
+resetGame();
+requestAnimationFrame(gameLoop);
+</script>
+
+</body>
+</html>
