@@ -1,105 +1,86 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>بازی سیف کوین</title>
+<title>بازی سیف کوین - حرفه‌ای</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap');
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
   body, html {
-    margin: 0; padding: 0; overflow: hidden; background: #f0f0f0;
-    touch-action: none;
-    font-family: Tahoma, sans-serif;
-    direction: rtl;
+    height: 100%;
+    background: linear-gradient(135deg, #f9f3b2 0%, #e6cc76 100%);
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    overflow: hidden;
   }
   #gameCanvas {
     display: block;
-    background: #fff;
+    margin: auto;
+    background: radial-gradient(circle at center, #fff8cc 0%, #e3d1a3 100%);
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    touch-action: none;
   }
-  #restartBtn {
+  #score {
     position: fixed;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 12px 24px;
-    font-size: 20px;
-    display: none;
-    cursor: pointer;
+    top: 15px;
+    right: 20px;
+    font-size: 32px;
+    color: #7a5c00;
+    text-shadow: 1px 1px 0 #fff9c2;
+    font-weight: 900;
+    z-index: 100;
   }
-  #gameOverMsg {
+  #message {
     position: fixed;
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 26px;
-    color: red;
+    font-size: 48px;
+    color: #b33939;
+    font-weight: 900;
+    text-shadow: 2px 2px 4px #fff;
     display: none;
-    font-weight: bold;
+    z-index: 200;
+  }
+  #restartBtn {
+    position: fixed;
+    top: 55%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #7a5c00;
+    border: none;
+    border-radius: 10px;
+    padding: 15px 40px;
+    font-size: 26px;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 5px 12px #b3a56c;
+    display: none;
+    z-index: 200;
+    transition: background-color 0.3s ease;
+  }
+  #restartBtn:hover {
+    background: #a38b0a;
   }
 </style>
 </head>
 <body>
+
+<div id="score">امتیاز: 0</div>
 <canvas id="gameCanvas"></canvas>
-<div id="gameOverMsg">باختی! :(</div>
+<div id="message">باختی! 😢</div>
 <button id="restartBtn">دوباره بازی کن</button>
 
 <script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-let score = 0;
-let isGameOver = false;
-let basket = { 
-  width: 120, 
-  height: 30, 
-  x: window.innerWidth / 2 - 60, 
-  y: window.innerHeight - 140
-};
-let coins = [];
-let spawnInterval;
-
-function spawnCoin() {
-  coins.push({ 
-    x: Math.random() * (canvas.width - 30) + 15, 
-    y: -30, 
-    size: 30, 
-    speed: 3 + Math.random() * 2 
-  });
-}
-
-function startGame() {
-  score = 0;
-  isGameOver = false;
-  coins = [];
-  basket.x = window.innerWidth / 2 - basket.width / 2;
-  document.getElementById("restartBtn").style.display = "none";
-  document.getElementById("gameOverMsg").style.display = "none";
-
-  if (spawnInterval) clearInterval(spawnInterval);
-  spawnCoin();
-  spawnInterval = setInterval(spawnCoin, 1000);
-
-  requestAnimationFrame(gameLoop);
-}
-
-function gameLoop() {
-  if (isGameOver) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // رسم سبد
-  ctx.fillStyle = "brown";
-  ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
-
-  // رسم کوین‌ها
-  ctx.fillStyle = "gold";
-  for (let i = 0; i < coins.length; i++) {
-    let coin = coins[i];
-    ctx.beginPath();
-    ctx.arc(coin.x, coin.y, coin.size / 2, 0, Math.PI * 2);
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const messageEl = document.getElementById('message');
+  const restartBtn =
