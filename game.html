@@ -6,114 +6,135 @@
 <title>بازی سیف کوین</title>
 <style>
   body {
-    margin: 0; padding: 0; background: #111; color: #fff; font-family: Tahoma, sans-serif;
-    overflow: hidden;
+    margin: 0; background: #222; overflow: hidden; font-family: Tahoma, sans-serif;
+    color: #fff; text-align: center;
   }
-  #gameArea {
-    position: relative; width: 600px; height: 400px; margin: 20px auto; background: #222; border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 20px #b8860b;
+  canvas {
+    background: linear-gradient(to top, #4a3c00 0%, #ffd700 100%);
+    display: block; margin: 0 auto; border-radius: 10px;
   }
-  #logo {
-    display: block;
-    margin: 10px auto;
-    width: 120px;
-  }
-  #basket {
-    position: absolute; bottom: 10px; left: 50%; width: 150px; height: 50px;
-    background: #b8860b; border-radius: 30px 30px 10px 10px;
-    transform: translateX(-50%);
-    box-shadow: inset 0 0 10px #fff7a1;
-  }
-  .coin {
-    position: absolute; width: 30px; height: 30px;
-    background: radial-gradient(circle at center, #fff769, #b8860b);
-    border-radius: 50%;
-    border: 2px solid #fff5c3;
-    box-shadow: 0 0 8px #fffaa0;
-  }
-  #scoreBoard {
-    text-align: center; margin-top: 10px; font-size: 20px; color: #f9d71c;
+  #score {
+    font-size: 24px; margin-top: 10px;
   }
 </style>
 </head>
 <body>
 
-<img id="logo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDYwMCA2MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImdvbGRHcmFkaWVudCIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNTAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZjc2OSIgc3RvcC1vcGFjaXR5PSIwLjciLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYjg4NjBiIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJlbWJvc3MiIHg9Ii0yMCUiIHk9Ii0yMCUiIHdpZHRoPSIxNDAlIiBoZWlnaHQ9IjE0MCUiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1NSViIgZmlsdGVyVW5pdHM9InVzZXJzcGFjZU9uVXNlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMSIgZHk9IjEiIHN0ZURldmlhdGlvbj0iMC41IiBmbG9vZC1jb2xvcj0iI2ZmZjVjMyIgZmxvb2Qtb3BhY2l0eT0iMC45Ii8+CiAgICA8L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9ImVuZ3JhdmUiIHgtPSIyMCUiIHktPSIyMCUiIHdpZHRoPSIxNDAlIiBoZWlnaHQ9IjE0MCUiIGNvbG9yLWludGVycG9sYXRpb25maWx0ZXJzPSJzUlJWIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iLTEiIGR5PSItMSIgc3RlZURldmlhdGlvbj0iMC41IiBmbG9vZC1jb2xvcj0iI2ZmZmZmZiIgZmxvb2Qtb3BhY2l0eT0iMC43Ii8+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjEiIGR5PSIxIiBzdGVEZXZpYXRpb249IjAuNSIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNiIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIAogIDwhLS0gZGFpcmVjZSB0b2xhZ2kgLS0+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iMzAwIiByPSIyNzAiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIgc3Ryb2tlPSIjYjg4NjBiIiBzdHJva2Utd2lkdGg9IjEwIiBmaWx0ZXI9InVybCgjaW1iZXNzKSIvPgogIAogIDwhLS0g5a6u5Zyo5biG5YyW6KiA5a6u6KqN5bCG5ZOBIC0tPgogIDxnIGlkPSJ3aGVhdCI+CiAgICA8cmVjdCB4PSItNSIgeT0iMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjNGI2ODJjIiByeD0iNCIgcnk9IjQiLz4KICAgIDxnIGZpbGw9IiNmZmUwNjYiIHN0cm9rZT0iIzRiNjgyYyIgc3Rva2Utd2lkdGg9IjEiPgogICAgICA8ZWxsaXBzZSBjeD0iMCIgY3k9IjE1IiByeD0iMTAiIHJ5PSIxOCIgLz4KICAgICAgPGVsbGlwc2UgY3g9Ii0xMiIgY3k9IjQwIiByeD0iMTAiIHJ5PSIxOCIgLz4KICAgICAgPGVsbGlwc2UgY3g9IjEyIiBjeT0iNDAiIHJ4PSIxMCIgcnk9IjE4IiAvPgogICAgPC9nPgogIDwvc3ZnPg==" alt="SafeCoin Logo" />
-
-<div id="gameArea">
-  <div id="basket"></div>
-</div>
-
-<div id="scoreBoard">امتیاز: 0</div>
+<h1>بازی سیف کوین</h1>
+<canvas id="gameCanvas" width="400" height="600"></canvas>
+<div id="score">امتیاز: 0</div>
 
 <script>
-  const gameArea = document.getElementById('gameArea');
-  const basket = document.getElementById('basket');
-  const scoreBoard = document.getElementById('scoreBoard');
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-  let score = 0;
-  let basketX = gameArea.clientWidth / 2 - basket.clientWidth / 2;
-  basket.style.left = basketX + 'px';
+const basket = {
+  x: canvas.width / 2 - 50,
+  y: canvas.height - 60,
+  width: 100,
+  height: 40,
+  color: '#b8860b',
+  moveX: 0,
+};
 
-  // حرکت سبد با موس یا لمس
-  function moveBasket(event) {
-    let rect = gameArea.getBoundingClientRect();
-    let x = event.clientX || (event.touches && event.touches[0].clientX);
-    if (x !== undefined) {
-      basketX = x - rect.left - basket.clientWidth / 2;
-      if (basketX < 0) basketX = 0;
-      if (basketX > gameArea.clientWidth - basket.clientWidth) basketX = gameArea.clientWidth - basket.clientWidth;
-      basket.style.left = basketX + 'px';
-    }
+const coin = {
+  x: Math.random() * (canvas.width - 60) + 30,
+  y: -60,
+  radius: 30,
+  speed: 3,
+};
+
+let score = 0;
+
+function drawBasket() {
+  ctx.fillStyle = basket.color;
+  ctx.beginPath();
+  ctx.moveTo(basket.x, basket.y + basket.height);
+  ctx.lineTo(basket.x + basket.width, basket.y + basket.height);
+  ctx.lineTo(basket.x + basket.width - 15, basket.y);
+  ctx.lineTo(basket.x + 15, basket.y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawCoin() {
+  // دایره طلایی
+  const grad = ctx.createRadialGradient(coin.x, coin.y, coin.radius * 0.2, coin.x, coin.y, coin.radius);
+  grad.addColorStop(0, '#fff769');
+  grad.addColorStop(1, '#b8860b');
+
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(coin.x, coin.y, coin.radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // نوشته $FC وسط سکه
+  ctx.font = 'bold 24px Tahoma';
+  ctx.fillStyle = '#7a5c00';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('$FC', coin.x, coin.y);
+}
+
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // حرکت کوین
+  coin.y += coin.speed;
+
+  // کشف برخورد با سبد
+  if (
+    coin.y + coin.radius >= basket.y &&
+    coin.x >= basket.x &&
+    coin.x <= basket.x + basket.width
+  ) {
+    score++;
+    document.getElementById('score').textContent = 'امتیاز: ' + score;
+    resetCoin();
   }
-  gameArea.addEventListener('mousemove', moveBasket);
-  gameArea.addEventListener('touchmove', moveBasket);
 
-  // ساخت سکه
-  function createCoin() {
-    const coin = document.createElement('div');
-    coin.classList.add('coin');
-    coin.style.left = Math.random() * (gameArea.clientWidth - 30) + 'px';
-    coin.style.top = '0px';
-    gameArea.appendChild(coin);
-    return coin;
+  // اگر کوین افتاد پایین صفحه
+  if (coin.y - coin.radius > canvas.height) {
+    resetCoin();
   }
 
-  // سقوط سکه و چک کردن برخورد با سبد
-  function dropCoin(coin) {
-    let top = 0;
-    const fallSpeed = 3 + Math.random() * 2;
+  drawBasket();
+  drawCoin();
 
-    function fall() {
-      top += fallSpeed;
-      coin.style.top = top + 'px';
+  requestAnimationFrame(update);
+}
 
-      if (top + 30 >= gameArea.clientHeight - 10) {
-        // بررسی برخورد با سبد
-        const coinLeft = parseFloat(coin.style.left);
-        if (coinLeft + 30 > basketX && coinLeft < basketX + basket.clientWidth) {
-          score++;
-          scoreBoard.textContent = 'امتیاز: ' + score;
-          gameArea.removeChild(coin);
-        } else if (top + 30 >= gameArea.clientHeight) {
-          // سکه افتاد پایین و حذف شد
-          gameArea.removeChild(coin);
-        } else {
-          requestAnimationFrame(fall);
-        }
-      } else {
-        requestAnimationFrame(fall);
-      }
-    }
-    fall();
-  }
+function resetCoin() {
+  coin.x = Math.random() * (canvas.width - 60) + 30;
+  coin.y = -60;
+  // میتونی سرعت رو هم افزایش بدی با گذشت زمان
+  coin.speed += 0.1;
+}
 
-  // حلقه ایجاد سکه
-  setInterval(() => {
-    const coin = createCoin();
-    dropCoin(coin);
-  }, 1500);
+function onMouseMove(e) {
+  let rect = canvas.getBoundingClientRect();
+  let mouseX = e.clientX - rect.left;
+  basket.x = mouseX - basket.width / 2;
+
+  // محدود کردن حرکت سبد به داخل کانوَس
+  if (basket.x < 0) basket.x = 0;
+  if (basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  let rect = canvas.getBoundingClientRect();
+  let touchX = e.touches[0].clientX - rect.left;
+  basket.x = touchX - basket.width / 2;
+
+  if (basket.x < 0) basket.x = 0;
+  if (basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
+}
+
+canvas.addEventListener('mousemove', onMouseMove);
+canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+
+update();
 </script>
 
 </body>
