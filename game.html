@@ -1,220 +1,119 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SafeCoin - بازی Coin Catcher</title>
+<title>بازی سیف کوین</title>
 <style>
   body {
-    margin: 0; padding: 0; background: #0d1117; color: #fff;
-    font-family: Arial, sans-serif;
+    margin: 0; padding: 0; background: #111; color: #fff; font-family: Tahoma, sans-serif;
     overflow: hidden;
   }
   #gameArea {
-    position: relative;
-    width: 100vw; height: 100vh;
-    background: linear-gradient(to bottom, #161b22 0%, #238636 100%);
+    position: relative; width: 600px; height: 400px; margin: 20px auto; background: #222; border-radius: 10px;
     overflow: hidden;
+    box-shadow: 0 0 20px #b8860b;
+  }
+  #logo {
+    display: block;
+    margin: 10px auto;
+    width: 120px;
   }
   #basket {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    width: 80px;
-    height: 30px;
-    background: #238636;
-    border-radius: 15px;
+    position: absolute; bottom: 10px; left: 50%; width: 150px; height: 50px;
+    background: #b8860b; border-radius: 30px 30px 10px 10px;
     transform: translateX(-50%);
-    box-shadow: 0 0 10px #238636;
-  }
-  .coin, .trap {
-    position: absolute;
-    top: -50px;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    box-shadow: 0 0 10px #ffd700;
+    box-shadow: inset 0 0 10px #fff7a1;
   }
   .coin {
-    background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Binance-Coin-BNB-icon-logo.svg/1200px-Binance-Coin-BNB-icon-logo.svg.png') no-repeat center;
-    background-size: contain;
-    box-shadow: 0 0 15px #f0d94e;
+    position: absolute; width: 30px; height: 30px;
+    background: radial-gradient(circle at center, #fff769, #b8860b);
+    border-radius: 50%;
+    border: 2px solid #fff5c3;
+    box-shadow: 0 0 8px #fffaa0;
   }
-  .trap {
-    background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Red_x.svg/768px-Red_x.svg.png') no-repeat center;
-    background-size: contain;
-    box-shadow: 0 0 15px #ff4c4c;
-  }
-  #score {
-    position: absolute;
-    top: 10px; left: 10px;
-    font-size: 24px;
-    font-weight: bold;
-  }
-  #message {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 28px;
-    background: rgba(0,0,0,0.7);
-    padding: 20px;
-    border-radius: 15px;
-    display: none;
-    text-align: center;
-  }
-  #restartBtn {
-    margin-top: 15px;
-    padding: 10px 20px;
-    background: #238636;
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
+  #scoreBoard {
+    text-align: center; margin-top: 10px; font-size: 20px; color: #f9d71c;
   }
 </style>
 </head>
 <body>
 
+<img id="logo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDYwMCA2MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImdvbGRHcmFkaWVudCIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNTAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZjc2OSIgc3RvcC1vcGFjaXR5PSIwLjciLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYjg4NjBiIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJlbWJvc3MiIHg9Ii0yMCUiIHk9Ii0yMCUiIHdpZHRoPSIxNDAlIiBoZWlnaHQ9IjE0MCUiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1NSViIgZmlsdGVyVW5pdHM9InVzZXJzcGFjZU9uVXNlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMSIgZHk9IjEiIHN0ZURldmlhdGlvbj0iMC41IiBmbG9vZC1jb2xvcj0iI2ZmZjVjMyIgZmxvb2Qtb3BhY2l0eT0iMC45Ii8+CiAgICA8L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9ImVuZ3JhdmUiIHgtPSIyMCUiIHktPSIyMCUiIHdpZHRoPSIxNDAlIiBoZWlnaHQ9IjE0MCUiIGNvbG9yLWludGVycG9sYXRpb25maWx0ZXJzPSJzUlJWIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iLTEiIGR5PSItMSIgc3RlZURldmlhdGlvbj0iMC41IiBmbG9vZC1jb2xvcj0iI2ZmZmZmZiIgZmxvb2Qtb3BhY2l0eT0iMC43Ii8+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjEiIGR5PSIxIiBzdGVEZXZpYXRpb249IjAuNSIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNiIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIAogIDwhLS0gZGFpcmVjZSB0b2xhZ2kgLS0+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iMzAwIiByPSIyNzAiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIgc3Ryb2tlPSIjYjg4NjBiIiBzdHJva2Utd2lkdGg9IjEwIiBmaWx0ZXI9InVybCgjaW1iZXNzKSIvPgogIAogIDwhLS0g5a6u5Zyo5biG5YyW6KiA5a6u6KqN5bCG5ZOBIC0tPgogIDxnIGlkPSJ3aGVhdCI+CiAgICA8cmVjdCB4PSItNSIgeT0iMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjNGI2ODJjIiByeD0iNCIgcnk9IjQiLz4KICAgIDxnIGZpbGw9IiNmZmUwNjYiIHN0cm9rZT0iIzRiNjgyYyIgc3Rva2Utd2lkdGg9IjEiPgogICAgICA8ZWxsaXBzZSBjeD0iMCIgY3k9IjE1IiByeD0iMTAiIHJ5PSIxOCIgLz4KICAgICAgPGVsbGlwc2UgY3g9Ii0xMiIgY3k9IjQwIiByeD0iMTAiIHJ5PSIxOCIgLz4KICAgICAgPGVsbGlwc2UgY3g9IjEyIiBjeT0iNDAiIHJ4PSIxMCIgcnk9IjE4IiAvPgogICAgPC9nPgogIDwvc3ZnPg==" alt="SafeCoin Logo" />
+
 <div id="gameArea">
-  <div id="score">امتیاز: 0</div>
   <div id="basket"></div>
-  <div id="message">
-    باختی! 😂<br />
-    بازی رو دوباره امتحان کن!<br />
-    <button id="restartBtn">شروع دوباره</button>
-  </div>
 </div>
+
+<div id="scoreBoard">امتیاز: 0</div>
 
 <script>
   const gameArea = document.getElementById('gameArea');
   const basket = document.getElementById('basket');
-  const scoreEl = document.getElementById('score');
-  const message = document.getElementById('message');
-  const restartBtn = document.getElementById('restartBtn');
+  const scoreBoard = document.getElementById('scoreBoard');
 
-  let basketX = window.innerWidth / 2;
-  let basketWidth = basket.offsetWidth;
   let score = 0;
-  let coins = [];
-  let traps = [];
-  let gameInterval;
-  let spawnInterval;
-  let speed = 2;
-  let gameOver = false;
+  let basketX = gameArea.clientWidth / 2 - basket.clientWidth / 2;
+  basket.style.left = basketX + 'px';
 
-  // حرکت سبد با لمس یا موس
-  function moveBasket(x) {
-    basketX = x - basketWidth / 2;
-    if (basketX < 0) basketX = 0;
-    if (basketX > window.innerWidth - basketWidth) basketX = window.innerWidth - basketWidth;
-    basket.style.left = basketX + 'px';
+  // حرکت سبد با موس یا لمس
+  function moveBasket(event) {
+    let rect = gameArea.getBoundingClientRect();
+    let x = event.clientX || (event.touches && event.touches[0].clientX);
+    if (x !== undefined) {
+      basketX = x - rect.left - basket.clientWidth / 2;
+      if (basketX < 0) basketX = 0;
+      if (basketX > gameArea.clientWidth - basket.clientWidth) basketX = gameArea.clientWidth - basket.clientWidth;
+      basket.style.left = basketX + 'px';
+    }
+  }
+  gameArea.addEventListener('mousemove', moveBasket);
+  gameArea.addEventListener('touchmove', moveBasket);
+
+  // ساخت سکه
+  function createCoin() {
+    const coin = document.createElement('div');
+    coin.classList.add('coin');
+    coin.style.left = Math.random() * (gameArea.clientWidth - 30) + 'px';
+    coin.style.top = '0px';
+    gameArea.appendChild(coin);
+    return coin;
   }
 
-  window.addEventListener('mousemove', e => {
-    if (!gameOver) moveBasket(e.clientX);
-  });
-  window.addEventListener('touchmove', e => {
-    if (!gameOver) moveBasket(e.touches[0].clientX);
-  });
+  // سقوط سکه و چک کردن برخورد با سبد
+  function dropCoin(coin) {
+    let top = 0;
+    const fallSpeed = 3 + Math.random() * 2;
 
-  // ایجاد سکه یا تله
-  function spawnItem() {
-    if (gameOver) return;
-    const isTrap = Math.random() < 0.2; // ۲۰٪ احتمال تله
-    const item = document.createElement('div');
-    item.classList.add(isTrap ? 'trap' : 'coin');
-    item.style.left = Math.random() * (window.innerWidth - 40) + 'px';
-    gameArea.appendChild(item);
-    if (isTrap) traps.push(item);
-    else coins.push(item);
-  }
-
-  // حرکت اشیاء به پایین
-  function updateItems() {
-    if (gameOver) return;
-    // حرکت سکه ها
-    for (let i = coins.length - 1; i >= 0; i--) {
-      let coin = coins[i];
-      let top = coin.offsetTop + speed;
+    function fall() {
+      top += fallSpeed;
       coin.style.top = top + 'px';
 
-      if (top > window.innerHeight) {
-        coin.remove();
-        coins.splice(i, 1);
-        continue;
-      }
-      if (checkCatch(coin)) {
-        score++;
-        scoreEl.textContent = 'امتیاز: ' + score;
-        coin.remove();
-        coins.splice(i, 1);
-        speed += 0.1; // افزایش سرعت با امتیاز
-      }
-    }
-    // حرکت تله ها
-    for (let i = traps.length - 1; i >= 0; i--) {
-      let trap = traps[i];
-      let top = trap.offsetTop + speed;
-      trap.style.top = top + 'px';
-
-      if (top > window.innerHeight) {
-        trap.remove();
-        traps.splice(i, 1);
-        continue;
-      }
-      if (checkCatch(trap)) {
-        gameOver = true;
-        showGameOver();
+      if (top + 30 >= gameArea.clientHeight - 10) {
+        // بررسی برخورد با سبد
+        const coinLeft = parseFloat(coin.style.left);
+        if (coinLeft + 30 > basketX && coinLeft < basketX + basket.clientWidth) {
+          score++;
+          scoreBoard.textContent = 'امتیاز: ' + score;
+          gameArea.removeChild(coin);
+        } else if (top + 30 >= gameArea.clientHeight) {
+          // سکه افتاد پایین و حذف شد
+          gameArea.removeChild(coin);
+        } else {
+          requestAnimationFrame(fall);
+        }
+      } else {
+        requestAnimationFrame(fall);
       }
     }
+    fall();
   }
 
-  // چک کردن برخورد با سبد
-  function checkCatch(item) {
-    let itemRect = item.getBoundingClientRect();
-    let basketRect = basket.getBoundingClientRect();
-
-    return !(
-      itemRect.right < basketRect.left ||
-      itemRect.left > basketRect.right ||
-      itemRect.bottom < basketRect.top ||
-      itemRect.top > basketRect.bottom
-    );
-  }
-
-  // نمایش پیام باخت
-  function showGameOver() {
-    message.style.display = 'block';
-  }
-
-  // شروع یا ریست بازی
-  function startGame() {
-    message.style.display = 'none';
-    score = 0;
-    speed = 2;
-    gameOver = false;
-
-    // پاک کردن سکه و تله‌های قبلی
-    coins.forEach(c => c.remove());
-    traps.forEach(t => t.remove());
-    coins = [];
-    traps = [];
-
-    // موقعیت سبد وسط صفحه
-    basketX = window.innerWidth / 2 - basketWidth / 2;
-    basket.style.left = basketX + 'px';
-
-    if (gameInterval) clearInterval(gameInterval);
-    if (spawnInterval) clearInterval(spawnInterval);
-
-    gameInterval = setInterval(updateItems, 20);
-    spawnInterval = setInterval(spawnItem, 700);
-  }
-
-  restartBtn.addEventListener('click', startGame);
-
-  // شروع بازی وقتی صفحه لود شد
-  window.onload = startGame;
+  // حلقه ایجاد سکه
+  setInterval(() => {
+    const coin = createCoin();
+    dropCoin(coin);
+  }, 1500);
 </script>
 
 </body>
