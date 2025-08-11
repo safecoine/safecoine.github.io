@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>بازی SafeCoin موبایل</title>
+<title>بازی SafeCoin</title>
 <style>
   body {
     margin: 0; 
@@ -32,7 +32,7 @@
     background: #444;
     display: block;
     margin: 0 auto;
-    touch-action: none; /* جلوگیری از اسکرول صفحه هنگام لمس */
+    touch-action: none;
     border-radius: 10px;
   }
 </style>
@@ -81,11 +81,3 @@ function createCoin() {
     x: Math.random() * (canvas.width - 2 * coinRadius) + coinRadius,
     y: -coinRadius,
     speed: 2 + Math.random() * 2,
-    type: Math.random() < 0.2 ? 'trap' : 'normal'  // ۲۰٪ تله
-  };
-}
-
-function drawBasket() {
-  ctx.fillStyle = '#555';
-  ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
-  ctx.strokeStyle = '#ddd';
