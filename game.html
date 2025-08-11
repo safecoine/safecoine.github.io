@@ -63,10 +63,11 @@
   }
   #basket {
     position: absolute;
-    bottom: 40px;
+    bottom: 100px; /* فاصله بالاتر از قبل */
     left: 50%;
     transform: translateX(-50%);
-    width: 140px;
+    width: 18vw; /* عرض واکنش‌گرا */
+    max-width: 160px;
     height: 70px;
     background: linear-gradient(135deg, #b58900, #f6e05e);
     border-radius: 35px 35px 12px 12px;
@@ -111,127 +112,4 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    font-weight: 900;
-    color: #6b4d00;
-    font-size: 22px;
-    text-shadow: 0 0 3px #fff9;
-    user-select: none;
-  }
-  .bomb {
-    width: 50px;
-    height: 50px;
-    background: radial-gradient(circle at center, #222, #000);
-    border-radius: 50%;
-    box-shadow: inset 0 0 8px #555;
-    position: absolute;
-    border: 3px solid #900;
-  }
-  .bomb::before {
-    content: '';
-    position: absolute;
-    top: 12px; left: 20px;
-    width: 10px; height: 18px;
-    background: #f00;
-    border-radius: 3px;
-    box-shadow: 0 0 5px #f00;
-  }
-</style>
-</head>
-<body>
-  <div id="game">
-    <div id="scoreBoard">امتیاز: 0</div>
-    <div id="highScore">رکورد: 0</div>
-    <div id="message"></div>
-    <button id="restartBtn">دوباره بازی کن!</button>
-    <div id="basket"></div>
-  </div>
-
-<script>
-(() => {
-  const game = document.getElementById('game');
-  const basket = document.getElementById('basket');
-  const scoreBoard = document.getElementById('scoreBoard');
-  const highScoreBoard = document.getElementById('highScore');
-  const message = document.getElementById('message');
-  const restartBtn = document.getElementById('restartBtn');
-
-  let score = 0;
-  let highScore = localStorage.getItem('safeCoinHighScore') || 0;
-  let gameInterval;
-  let coins = [];
-  let coinSpeed = 1.8;
-  let coinFrequency = 1300; // ms
-  let isGameOver = false;
-
-  highScoreBoard.textContent = `رکورد: ${highScore}`;
-
-  // اندازه سبد و موقعیتش
-  let basketWidth = basket.offsetWidth;
-  let basketHeight = basket.offsetHeight;
-  let basketX = (window.innerWidth - basketWidth) / 2;
-  let basketY = window.innerHeight - basketHeight - 40;
-
-  basket.style.left = basketX + 'px';
-  basket.style.top = basketY + 'px';
-
-  // کنترل سبد با لمس
-  let touchStartX = null;
-  basket.addEventListener('touchstart', e => {
-    e.preventDefault();
-    touchStartX = e.touches[0].clientX;
-  });
-
-  basket.addEventListener('touchmove', e => {
-    e.preventDefault();
-    let touchX = e.touches[0].clientX;
-    let deltaX = touchX - touchStartX;
-    basketX += deltaX;
-    if (basketX < 0) basketX = 0;
-    if (basketX > window.innerWidth - basketWidth) basketX = window.innerWidth - basketWidth;
-    basket.style.left = basketX + 'px';
-    touchStartX = touchX;
-  });
-
-  // کنترل با موس برای دسکتاپ
-  basket.addEventListener('mousedown', e => {
-    e.preventDefault();
-    touchStartX = e.clientX;
-    const onMouseMove = (eMove) => {
-      let deltaX = eMove.clientX - touchStartX;
-      basketX += deltaX;
-      if (basketX < 0) basketX = 0;
-      if (basketX > window.innerWidth - basketWidth) basketX = window.innerWidth - basketWidth;
-      basket.style.left = basketX + 'px';
-      touchStartX = eMove.clientX;
-    };
-    const onMouseUp = () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
-
-  // ایجاد کوین یا بمب جدید
-  function createItem() {
-    if (isGameOver) return;
-
-    const rand = Math.random();
-    let elem;
-    let type; // "coin", "goldCoin", "bomb"
-    if (rand < 0.7) {
-      elem = document.createElement('div');
-      elem.className = 'coin';
-      type = 'coin';
-    } else if (rand < 0.9) {
-      elem = document.createElement('div');
-      elem.className = 'goldCoin';
-      type = 'goldCoin';
-    } else {
-      elem = document.createElement('div');
-      elem.className = 'bomb';
-      type = 'bomb';
-    }
-
-    elem.style.left = Math.random() * (window.innerWidth -
+    transform
